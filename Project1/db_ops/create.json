@@ -2,8 +2,8 @@
   "op": "create",
   "collection": "test",
   "args": [
-    { "a": 1 },
-    { "b": 2 },
-    { "c": 3 }
+    { "a": 1, "name": "Jaydeep" },
+    { "b": 2, "name": "Siddhesh" },
+    { "c": 3, "name": "Siddhesh" }
   ]
 }
