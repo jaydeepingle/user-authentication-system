@@ -44,8 +44,11 @@ function dbOp(url, op) {
 }
 
 function createRecord(mongo, url, obj) {
-    mongo.connect(url).then(function(db) {
-        obj.args.forEach(function(record) {
+    mongo.connect(url).then(function(db, err) {
+        if(err) {
+    		error("Unable to connect to DB");
+    	}
+	    obj.args.forEach(function(record) {
             db.collection(obj.collection).insertOne(record);
         });
         db.close();
@@ -53,7 +56,10 @@ function createRecord(mongo, url, obj) {
 }
 
 function readRecord(mongo, url, obj) {
-    mongo.connect(url).then(function(db) {
+    mongo.connect(url).then(function(db, error) {
+    	if(error) {
+    		error("Unable to connect to DB");
+    	}
         db.collection(obj.collection).find(obj.args).forEach(function(record) {
             console.log(record);
         });
@@ -64,8 +70,11 @@ function readRecord(mongo, url, obj) {
 function updateRecord(mongo, url, obj) {
 	var mapper = newMapper(obj.fn[0], obj.fn[1]);
 	var flag = 0;
-	mongo.connect(url).then(function(db) {
-	    db.collection(obj.collection).find(obj.args).forEach(function(record) {
+	mongo.connect(url).then(function(db, error) {
+		if(error) {
+    		error("Unable to connect to DB");
+    	}
+        db.collection(obj.collection).find(obj.args).forEach(function(record) {
 	        var mapped = mapper.call(null, record);
 	        console.log(record, " ", mapped);
 	        try {
@@ -73,8 +82,7 @@ function updateRecord(mongo, url, obj) {
 	    			if(result === "undefined") {
 	    				console.error(error);
 	    			}
-	    			flag = 1;
-	    			db.close();	
+	    			db.close();
 	    		});
 	        } catch (e) {
 	            print(e);
@@ -84,7 +92,10 @@ function updateRecord(mongo, url, obj) {
 }
 
 function deleteRecord(mongo, url, obj) {
-    mongo.connect(url).then(function(db) {
+    mongo.connect(url).then(function(db, error) {
+    	if(error) {
+    		error("Unable to connect to DB");
+    	}
         if (obj.args === "undefined") {
             db.collection(obj.collection).deleteMany({});
         } else {
