@@ -1,0 +1,19 @@
+{
+  "name": "db_ops",
+  "version": "1.0.0",
+  "description": "Name:\t   XXXX B-Number:  XXXX Email:     XXXX",
+  "main": "db_ops.js",
+  "directories": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "mocha": "^3.5.3",
+    "mongodb": "^2.2.31"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
