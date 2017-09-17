@@ -1,0 +1,33 @@
+Name:	   Jaydeep Digambar Ingle
+B-Number:  B00671052
+Email:     jingle1@binghamton.edu
+
+------------------------------------------------------
+
+Code Description:
+
+There are 4 functions for create, read, update and delete which open the
+connection with the database and performs the operation based on the parameter
+op.
+
+------------------------------------------------------
+
+Steps to execute: 
+
+1. create (assuming you have create.json)
+$ ./db_ops.js $URL "`cat create.json`"
+
+2. read
+$ ./db_ops.js $URL '{"op": "read", "collection": "test" }' 
+
+3. update (assuming you have update.json)
+$ ./db_ops.js $URL "`cat update.json`"
+
+4. delete
+$ ./db_ops.js $URL '{"op": "delete", "collection": "test" }'
+
+
+In case of read update delete, you can provide args to filter out only selected
+records.
+
+------------------------------------------------------
