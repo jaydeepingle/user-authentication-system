@@ -27,6 +27,7 @@ module.exports.error = error;
 //perform op on mongo db specified by url.
 function dbOp(url, op) {
     var obj = JSON.parse(op);
+    // Switch case to deal with the type of operation
     switch (obj.op) {
         case "create":
             createRecord(mongo, url, obj);
@@ -54,35 +55,44 @@ function createRecord(mongo, url, obj) {
 function readRecord(mongo, url, obj) {
     mongo.connect(url).then(function(db) {
         db.collection(obj.collection).find(obj.args).forEach(function(record) {
-        	console.log(record);	
+            console.log(record);
         });
         db.close();
     });
 }
 
 function updateRecord(mongo, url, obj) {
-    console.log("Update");
-    var mapper = newMapper(obj.fn[0], obj.fn[1]);
-    mongo.connect(url).then(function(db) {
+	var mapper = newMapper(obj.fn[0], obj.fn[1]);
+	var flag = 0;
+	mongo.connect(url).then(function(db) {
 	    db.collection(obj.collection).find(obj.args).forEach(function(record) {
-	        var mapped = mapper(record);
-	        console.log("Mapped: ", mapped);
-	        db.updateMany(mapped);
+	        var mapped = mapper.call(null, record);
+	        console.log(record, " ", mapped);
+	        try {
+	        	db.collection(obj.collection).update(record, mapped).then(function(error, result) {
+	    			if(result === "undefined") {
+	    				console.error(error);
+	    			}
+	    			flag = 1;
+	    			db.close();	
+	    		});
+	        } catch (e) {
+	            print(e);
+	        }
 	    });
-	    db.close();
-    });
+	});
 }
 
 function deleteRecord(mongo, url, obj) {
     mongo.connect(url).then(function(db) {
-        if(obj.args === "undefined") {
-        	db.collection(obj.collection).deleteMany({});	
+        if (obj.args === "undefined") {
+            db.collection(obj.collection).deleteMany({});
         } else {
-        	try {
-			   db.collection(obj.collection).deleteMany(obj.args);
-			} catch (e) {
-			   print (e);
-			}
+            try {
+                db.collection(obj.collection).deleteMany(obj.args);
+            } catch (e) {
+                print(e);
+            }
         }
         db.close();
     });
