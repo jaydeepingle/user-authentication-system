@@ -69,17 +69,15 @@ function readRecord(mongo, url, obj) {
 
 function updateRecord(mongo, url, obj) {
 	var mapper = newMapper(obj.fn[0], obj.fn[1]);
-	var flag = 0;
 	mongo.connect(url).then(function(db, error) {
 		if(error) {
     		error("Unable to connect to DB");
     	}
         db.collection(obj.collection).find(obj.args).forEach(function(record) {
 	        var mapped = mapper.call(null, record);
-	        console.log(record, " ", mapped);
 	        try {
-	        	db.collection(obj.collection).update(record, mapped).then(function(error, result) {
-	    			if(result === "undefined") {
+	        	db.collection(obj.collection).update(record, mapped).then(function(result, error) {
+	    			if(result === undefined) {
 	    				console.error(error);
 	    			}
 	    			db.close();
