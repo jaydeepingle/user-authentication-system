@@ -44,6 +44,9 @@ function dbOp(url, op) {
 }
 
 function createRecord(mongo, url, obj) {
+    if(obj.args === undefined) {
+        error("No arguments provided");
+    }
     mongo.connect(url).then(function(db, err) {
         if(err) {
     		error("Unable to connect to DB");
