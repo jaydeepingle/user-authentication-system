@@ -9,30 +9,30 @@ const NOT_FOUND = 404;
 const SERVER_ERROR = 500;
 
 function serve(port, model) {
-  const app = express();
-  app.locals.model = model;
-  app.locals.port = port;
-  setupRoutes(app);
-  app.listen(port, function() {
-    console.log(`listening on port ${port}`);
-  });
+    const app = express();
+    app.locals.model = model;
+    app.locals.port = port;
+    setupRoutes(app);
+    app.listen(port, function() {
+        console.log(`listening on port ${port}`);
+    });
 }
 
 function setupRoutes(app) {
-  app.use(bodyParser.json());
-  app.get('/users/:id', getUsers(app));
-  app.delete('/users/:id', deleteUser(app));
-  app.put('/users/:id', updateUser(app));  
-  app.post('/users/:id', createUser(app));  
+    app.use(bodyParser.json());
+    app.get('/users/:id', getUsers(app));
+    app.delete('/users/:id', deleteUser(app));
+    app.put('/users/:id', updateUser(app));
+    app.post('/users/:id', createUser(app));
 }
 
 function requestUrl(req) {
-  const port = req.app.locals.port;
-  return `${req.protocol}://${req.hostname}:${port}${req.originalUrl}`;
+    const port = req.app.locals.port;
+    return `${req.protocol}://${req.hostname}:${port}${req.originalUrl}`;
 }
-  
+
 module.exports = {
-  serve: serve
+    serve: serve
 }
 
 function updateUser(app) {
@@ -48,7 +48,7 @@ function updateUser(app) {
         request.app.locals.model.users.find(id).
         then(function(results) {
             if (results.length === 0) {
-                
+
                 console.log("Array Length 0");
                 console.log("REQUEST NESTED : ", request.body);
                 request.app.locals.model.users.createRecord(request.body).
@@ -60,10 +60,10 @@ function updateUser(app) {
                 catch((err) => {
                     console.error(err);
                     response.sendStatus(SERVER_ERROR);
-                });         
+                });
             } else {
-              console.log("updateUser ELSE");
-              request.app.locals.model.users.createRecord(request.body).
+                console.log("updateUser ELSE");
+                request.app.locals.model.users.updateRecord(request.body).
                 then(function(id) {
                     console.log("updateUser Something");
                     response.append('Location', requestUrl(request) + '/' + id);
@@ -79,10 +79,6 @@ function updateUser(app) {
             console.error(err);
             response.sendStatus(SERVER_ERROR);
         });
-
-
-
-       
     };
 }
 
@@ -106,61 +102,59 @@ function updateUser(app) {
 }*/
 
 function createUser(app) {
-  //request.params.id gives you ID
-  console.log("createUser");
-  return function(request, response) {
-    console.log("REQUEST ID : ", request.params.id);
-    request.body.id = request.params.id;
-    request.app.locals.model.users.createRecord(request.body).
-      then(function(id) {
-        console.log("createUser then");
-  response.append('Location', requestUrl(request) + '/' + id);
-  response.sendStatus(CREATED);
-      }).
-      catch((err) => {
-  console.error(err);
-  response.sendStatus(SERVER_ERROR);
-      });
-  };
+    //request.params.id gives you ID
+    //console.log("createUser");
+    return function(request, response) {
+        //console.log("REQUEST ID : ", request.params.id);
+        request.body.id = request.params.id;
+        request.app.locals.model.users.createRecord(request.body).
+        then(function(id) {
+            //console.log("createUser then");
+            response.append('Location', requestUrl(request) + '/' + id);
+            response.sendStatus(CREATED);
+        }).
+        catch((err) => {
+            console.error(err);
+            response.sendStatus(SERVER_ERROR);
+        });
+    };
 }
 
 function getUsers(app) {
-  //request.params.id gives you ID
-  console.log("getUsers");
-  return function(request, response) {
-    //const q = request.query.q;
-    const id = request.params.id;
-    if (typeof id === 'undefined') {
-      response.sendStatus(BAD_REQUEST);
-    }
-    else {
-      console.log("getUsers else : ", id);
-      request.app.locals.model.users.find(id).
-	then((results) => response.json(results)).
-	catch((err) => {
-	  console.error(err);
-	  response.sendStatus(SERVER_ERROR);
-	});
-    }
-  };
+    //request.params.id gives you ID
+    console.log("getUsers");
+    return function(request, response) {
+        //const q = request.query.q;
+       const id = request.params.id;
+        if (typeof id === 'undefined') {
+            response.sendStatus(BAD_REQUEST);
+        } else {
+            //console.log("getUsers else : ", id);
+            request.app.locals.model.users.find(id).
+            then((results) => response.json(results)).
+            catch((err) => {
+                console.error(err);
+                response.sendStatus(SERVER_ERROR);
+            });
+        }
+    };
 }
 
 function deleteUser(app) {
-  //request.params.id gives you ID
-  console.log("deleteUser");
-  return function(request, response) {
-    const id = request.params.id;
-    if (typeof id === 'undefined') {
-      response.sendStatus(BAD_REQUEST);
-    }
-    else {
-      console.log("deleteUser else : ", id);
-      request.app.locals.model.users.remove(id).
-  then(() => response.end()).
-  catch((err) => {
-    console.error(err);
-    response.sendStatus(NOT_FOUND);
-  });
-    }
-  };
+    //request.params.id gives you ID
+    //console.log("deleteUser");
+    return function(request, response) {
+        const id = request.params.id;
+        if (typeof id === 'undefined') {
+            response.sendStatus(BAD_REQUEST);
+        } else {
+            //console.log("deleteUser else : ", id);
+            request.app.locals.model.users.remove(id).
+            then(() => response.end()).
+            catch((err) => {
+                console.error(err);
+                response.sendStatus(NOT_FOUND);
+            });
+        }
+    };
 }
