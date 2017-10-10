@@ -1,0 +1,41 @@
+[{
+  "id": 1,
+  "first_name": "Dominica",
+  "last_name": "Molen",
+  "email": "dmolen0@nasa.gov",
+  "gender": "Female",
+  "title": "Dominica Molen",
+  "authors": "Dominica Molen"
+}, {
+  "id": 2,
+  "first_name": "Colby",
+  "last_name": "Stiebler",
+  "email": "cstiebler1@friendfeed.com",
+  "gender": "Male",
+  "title": "Colby Stiebler",
+  "authors": "Colby Stiebler"
+}, {
+  "id": 3,
+  "first_name": "Tobias",
+  "last_name": "Sturrock",
+  "email": "tsturrock2@mit.edu",
+  "gender": "Male",
+  "title": "Tobias Sturrock",
+  "authors": "Tobias Sturrock"
+}, {
+  "id": 4,
+  "first_name": "Ethelbert",
+  "last_name": "Willows",
+  "email": "ewillows3@cocolog-nifty.com",
+  "gender": "Male",
+  "title": "Ethelbert Willows",
+  "authors": "Ethelbert Willows"
+}, {
+  "id": 5,
+  "first_name": "Davide",
+  "last_name": "Charge",
+  "email": "dcharge4@fotki.com",
+  "gender": "Male",
+  "title": "Davide Charge",
+  "authors": "Davide Charge"
+}]
