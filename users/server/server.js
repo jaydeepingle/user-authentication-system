@@ -20,10 +20,10 @@ function serve(port, model) {
 
 function setupRoutes(app) {
   app.use(bodyParser.json());
-  app.get('/users', getUsers(app));
+  app.get('/users/:id', getUsers(app));
   app.delete('/users/:id', deleteUser(app));
-  app.put('/users/:id', createUser(app));  
-  //app.post('/users/:id', updateUser(app));  
+  app.put('/users/:id', updateUser(app));  
+  app.post('/users/:id', createUser(app));  
 }
 
 function requestUrl(req) {
@@ -35,10 +35,31 @@ module.exports = {
   serve: serve
 }
 
+function updateUser(app) {
+  //request.params.id gives you ID
+  console.log("updateUser");
+  return function(request, response) {
+    console.log("REQUEST ID : ", request.params.id);
+    request.body.id = request.params.id;
+    request.app.locals.model.users.createRecord(request.body).
+      then(function(id) {
+        console.log("updateUser then");
+  response.append('Location', requestUrl(request) + '/' + id);
+  response.sendStatus(CREATED);
+      }).
+      catch((err) => {
+  console.error(err);
+  response.sendStatus(SERVER_ERROR);
+      });
+  };
+}
+
 function createUser(app) {
+  //request.params.id gives you ID
   console.log("createUser");
   return function(request, response) {
-    console.log("REQUEST: ", request.body);
+    console.log("REQUEST ID : ", request.params.id);
+    request.body.id = request.params.id;
     request.app.locals.model.users.createRecord(request.body).
       then(function(id) {
         console.log("createUser then");
@@ -53,15 +74,17 @@ function createUser(app) {
 }
 
 function getUsers(app) {
+  //request.params.id gives you ID
   console.log("getUsers");
   return function(request, response) {
-    const q = request.query.q;
-    if (typeof q === 'undefined') {
+    //const q = request.query.q;
+    const id = request.params.id;
+    if (typeof id === 'undefined') {
       response.sendStatus(BAD_REQUEST);
     }
     else {
-      console.log("getUsers else : ", q);
-      request.app.locals.model.users.find(q).
+      console.log("getUsers else : ", id);
+      request.app.locals.model.users.find(id).
 	then((results) => response.json(results)).
 	catch((err) => {
 	  console.error(err);
@@ -72,6 +95,7 @@ function getUsers(app) {
 }
 
 function deleteUser(app) {
+  //request.params.id gives you ID
   console.log("deleteUser");
   return function(request, response) {
     const id = request.params.id;

@@ -16,10 +16,10 @@ Users.prototype.createRecord = function(data) {
     });
 }
 
-
 Users.prototype.find = function(query) {
   const searchSpec = { $text: { $search: query } };
   console.log("products find ", searchSpec, "\n"); 
+  console.log("RESULT: ", this.users.find(searchSpec).toArray());
   return this.users.find(searchSpec).toArray();
 }
 
