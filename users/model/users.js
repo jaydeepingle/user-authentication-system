@@ -2,11 +2,6 @@ const assert = require('assert');
 
 const USERS = 'users';
 const DEFAULT_USERS = './records';
-//const DEFAULT_INDEXES = { id: 'text' };
-// const DEFAULT_INDEXES = {
-//     title: 'text',
-//     authors: 'text'
-// };
 
 function Users(db) {
     this.db = db;
@@ -24,6 +19,7 @@ Users.prototype.updateRecord = function(data) {
     const dataSpec = {
         id: data.id
     };
+    //return this.users.updateOne(dataSpec, {body: data.body}).
     return this.users.replaceOne(dataSpec, data).
     then(function(result) {
         return new Promise(function(resolve, reject) {
@@ -37,25 +33,10 @@ Users.prototype.updateRecord = function(data) {
 }
 
 Users.prototype.find = function(id) {
-    // const searchSpec = {
-    //     $text: {
-    //         $search: id
-    //     }
-    // };
-    //console.log("products find ", searchSpec, "\n");
-    //console.log("RESULT: ", this.users.find(searchSpec).toArray());
     return this.users.find({"id": id}).toArray();
 }
 
-
 Users.prototype.remove = function(id) {
-    // const searchSpec = {
-    //     $text: {
-    //         $search: id
-    //     }
-    // };
-    //console.log("products delete ", searchSpec, "\n");
-    //console.log("DELETE MANY");
     return this.users.deleteMany({
         "id": id
     });
@@ -69,7 +50,6 @@ function initUsers(db, users = null) {
         const collection = db.collection(USERS);
         collection.deleteMany({}, function(err, result) {
             if (err !== null) reject(err);
-            //collection.createIndex(DEFAULT_INDEXES);
             collection.insertMany(users, function(err, result) {
                 if (err !== null) reject(err);
                 if (result.insertedCount !== users.length) {
