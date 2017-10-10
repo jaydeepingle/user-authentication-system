@@ -1,12 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-
 const OK = 200;
 const CREATED = 201;
 const BAD_REQUEST = 400;
 const NOT_FOUND = 404;
 const SERVER_ERROR = 500;
+const SEE_OTHER = 303;
+const NO_CONTENT = 204;
 
 function serve(port, model) {
     const app = express();
@@ -36,24 +37,13 @@ module.exports = {
 }
 
 function updateUser(app) {
-    //request.params.id gives you ID
-    console.log("updateUser");
     return function(request, response) {
-        console.log("REQUEST : ", typeof request.body);
-        request.body.id = request.params.id;
         id = request.params.id;
-
-
-        console.log("updateUser else : ", id);
         request.app.locals.model.users.find(id).
         then(function(results) {
             if (results.length === 0) {
-
-                console.log("Array Length 0");
-                console.log("REQUEST NESTED : ", request.body);
-                request.app.locals.model.users.createRecord(request.body).
+                request.app.locals.model.users.createRecord({"id": id, "body": request.body}).
                 then(function(id) {
-                    console.log("updateUser []");
                     response.append('Location', requestUrl(request) + '/' + id);
                     response.sendStatus(CREATED);
                 }).
@@ -62,12 +52,10 @@ function updateUser(app) {
                     response.sendStatus(SERVER_ERROR);
                 });
             } else {
-                console.log("updateUser ELSE");
-                request.app.locals.model.users.updateRecord(request.body).
+                request.app.locals.model.users.updateRecord({"id": id, "body": request.body}).
                 then(function(id) {
-                    console.log("updateUser Something");
                     response.append('Location', requestUrl(request) + '/' + id);
-                    response.sendStatus(CREATED);
+                    response.sendStatus(NO_CONTENT);
                 }).
                 catch((err) => {
                     console.error(err);
@@ -79,59 +67,51 @@ function updateUser(app) {
             console.error(err);
             response.sendStatus(SERVER_ERROR);
         });
+
     };
 }
 
-/*function updateUser(app) {
-  //request.params.id gives you ID
-  console.log("updateUser");
-  return function(request, response) {
-    console.log("REQUEST ID : ", request.params.id);
-    request.body.id = request.params.id;
-    request.app.locals.model.users.createRecord(request.body).
-      then(function(id) {
-        console.log("updateUser then");
-  response.append('Location', requestUrl(request) + '/' + id);
-  response.sendStatus(CREATED);
-      }).
-      catch((err) => {
-  console.error(err);
-  response.sendStatus(SERVER_ERROR);
-      });
-  };
-}*/
-
 function createUser(app) {
-    //request.params.id gives you ID
-    //console.log("createUser");
     return function(request, response) {
-        //console.log("REQUEST ID : ", request.params.id);
-        request.body.id = request.params.id;
-        request.app.locals.model.users.createRecord(request.body).
-        then(function(id) {
-            //console.log("createUser then");
-            response.append('Location', requestUrl(request) + '/' + id);
-            response.sendStatus(CREATED);
+        id = request.params.id;
+        request.app.locals.model.users.find(id).
+        then(function(results) {
+            if (results.length === 0) {
+                response.sendStatus(NOT_FOUND);
+            } else {
+                request.app.locals.model.users.updateRecord({"id": id, "body": request.body}).
+                then(function(id) {
+                    response.append('Location', requestUrl(request) + '/' + id);
+                    response.sendStatus(SEE_OTHER);
+                }).
+                catch((err) => {
+                    console.error(err);
+                    response.sendStatus(SERVER_ERROR);
+                });
+            }
         }).
         catch((err) => {
             console.error(err);
             response.sendStatus(SERVER_ERROR);
         });
+
     };
 }
 
 function getUsers(app) {
-    //request.params.id gives you ID
-    console.log("getUsers");
     return function(request, response) {
-        //const q = request.query.q;
-       const id = request.params.id;
+        const id = request.params.id;
         if (typeof id === 'undefined') {
             response.sendStatus(BAD_REQUEST);
         } else {
-            //console.log("getUsers else : ", id);
             request.app.locals.model.users.find(id).
-            then((results) => response.json(results)).
+            then(function(results) {
+              if(results.length === 0) {
+                response.sendStatus(NOT_FOUND);
+              } else {
+                response.json(results[0]["body"]);
+              }
+            }).
             catch((err) => {
                 console.error(err);
                 response.sendStatus(SERVER_ERROR);
@@ -141,19 +121,28 @@ function getUsers(app) {
 }
 
 function deleteUser(app) {
-    //request.params.id gives you ID
-    //console.log("deleteUser");
     return function(request, response) {
         const id = request.params.id;
         if (typeof id === 'undefined') {
             response.sendStatus(BAD_REQUEST);
         } else {
-            //console.log("deleteUser else : ", id);
-            request.app.locals.model.users.remove(id).
-            then(() => response.end()).
+            request.app.locals.model.users.find(id).
+            then(function(results) {
+              if(results.length === 0) {
+                response.sendStatus(NOT_FOUND);
+              } else {
+                  request.app.locals.model.users.remove(id).
+                  then(() => response.end()).
+                  //then(function()).
+                  catch((err) => {
+                      console.error(err);
+                      response.sendStatus(NOT_FOUND);
+                  });
+              }
+            }).
             catch((err) => {
                 console.error(err);
-                response.sendStatus(NOT_FOUND);
+                response.sendStatus(SERVER_ERROR);
             });
         }
     };
