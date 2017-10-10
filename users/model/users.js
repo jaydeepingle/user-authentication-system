@@ -2,6 +2,7 @@ const assert = require('assert');
 
 const USERS = 'users';
 const DEFAULT_USERS = './records';
+//const DEFAULT_INDEXES = { id: 'text' };
 const DEFAULT_INDEXES = { title: 'text', authors: 'text' };
 
 function Users(db) {
@@ -19,7 +20,7 @@ Users.prototype.createRecord = function(data) {
 Users.prototype.find = function(query) {
   const searchSpec = { $text: { $search: query } };
   console.log("products find ", searchSpec, "\n"); 
-  console.log("RESULT: ", this.users.find(searchSpec).toArray());
+  //console.log("RESULT: ", this.users.find(searchSpec).toArray());
   return this.users.find(searchSpec).toArray();
 }
 

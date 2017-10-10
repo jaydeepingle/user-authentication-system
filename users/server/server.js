@@ -36,6 +36,57 @@ module.exports = {
 }
 
 function updateUser(app) {
+    //request.params.id gives you ID
+    console.log("updateUser");
+    return function(request, response) {
+        console.log("REQUEST : ", typeof request.body);
+        request.body.id = request.params.id;
+        id = request.params.id;
+
+
+        console.log("updateUser else : ", id);
+        request.app.locals.model.users.find(id).
+        then(function(results) {
+            if (results.length === 0) {
+                
+                console.log("Array Length 0");
+                console.log("REQUEST NESTED : ", request.body);
+                request.app.locals.model.users.createRecord(request.body).
+                then(function(id) {
+                    console.log("updateUser []");
+                    response.append('Location', requestUrl(request) + '/' + id);
+                    response.sendStatus(CREATED);
+                }).
+                catch((err) => {
+                    console.error(err);
+                    response.sendStatus(SERVER_ERROR);
+                });         
+            } else {
+              console.log("updateUser ELSE");
+              request.app.locals.model.users.createRecord(request.body).
+                then(function(id) {
+                    console.log("updateUser Something");
+                    response.append('Location', requestUrl(request) + '/' + id);
+                    response.sendStatus(CREATED);
+                }).
+                catch((err) => {
+                    console.error(err);
+                    response.sendStatus(SERVER_ERROR);
+                });
+            }
+        }).
+        catch((err) => {
+            console.error(err);
+            response.sendStatus(SERVER_ERROR);
+        });
+
+
+
+       
+    };
+}
+
+/*function updateUser(app) {
   //request.params.id gives you ID
   console.log("updateUser");
   return function(request, response) {
@@ -52,7 +103,7 @@ function updateUser(app) {
   response.sendStatus(SERVER_ERROR);
       });
   };
-}
+}*/
 
 function createUser(app) {
   //request.params.id gives you ID
