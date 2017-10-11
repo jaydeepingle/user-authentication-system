@@ -133,7 +133,6 @@ function deleteUser(app) {
               } else {
                   request.app.locals.model.users.remove(id).
                   then(() => response.end()).
-                  //then(function()).
                   catch((err) => {
                       console.error(err);
                       response.sendStatus(NOT_FOUND);

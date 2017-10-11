@@ -25,7 +25,6 @@ function getPort(argv) {
 const port = getPort(process.argv);
 
 mongo.connect(DB_URL).
-then((db) => users.initUsers(db)).
 then(function(db) {
     const model1 = new model.Model(db);
     server.serve(port, model1);
