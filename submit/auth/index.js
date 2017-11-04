@@ -9,26 +9,27 @@ const mongo = require('mongodb').MongoClient;
 const process = require('process');
 const bodyParser = require("body-parser");
 
-const options = require('./options');
 const https = require('https');
 const fs = require('fs');
 
+const options = require('./options');
 const users = require('./model/users');
+const tokens = require('./model/tokens');
 const model = require('./model/model');
 const server = require('./server/server');
 
-
-const DB_URL = 'mongodb://localhost:27017/users';
+const USR_DB_URL = 'mongodb://localhost:27017/users';
+const TOKEN_DB_URL = 'mongodb://localhost:27017/tokens';
 const args = options
-console.log("Options: ", args);
+//console.log("Options: ", args);
 
-const KEY_PATH = "/home/jaydeep/http-server/key.pem";
-const CERT_PATH = "/home/jaydeep/http-server/cert.pem";
-
-mongo.connect(DB_URL).
-then(function(db) {
-    const model1 = new model.Model(db);
-    server.serve(model1, args.options.port);
+mongo.connect(USR_DB_URL).
+then(function(user_db) {
+    mongo.connect(TOKEN_DB_URL).
+    then(function(token_db) {
+        const model1 = new model.Model(user_db, token_db);
+        server.serve(model1, args.options.port, args.options.sslDir + "/key.pem", args.options.sslDir + "/cert.pem");    
+    }).catch((e) => console.error(e));
     //db.close();
 }).
 catch((e) => console.error(e));
