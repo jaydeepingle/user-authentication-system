@@ -1,0 +1,12 @@
+Name:      Jaydeep Digambar Ingle
+B-Number:  B00671052
+Email:     jingle1@binghamton.edu
+Status:    complete
+------------------------------------------------------
+
+Code Description:
+In this for hashing I have used md5 and for generating auth-token I have
+written my own program where I am generating a string of length 32 and 
+assigning timestamp with the same.
+
+------------------------------------------------------
