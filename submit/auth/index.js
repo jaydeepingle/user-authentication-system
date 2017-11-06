@@ -19,17 +19,17 @@ const model = require('./model/model');
 const server = require('./server/server');
 
 const USR_DB_URL = 'mongodb://localhost:27017/users';
-const TOKEN_DB_URL = 'mongodb://localhost:27017/tokens';
+//const TOKEN_DB_URL = 'mongodb://localhost:27017/tokens';
 const args = options
 //console.log("Options: ", args);
 
 mongo.connect(USR_DB_URL).
-then(function(user_db) {
-    mongo.connect(TOKEN_DB_URL).
-    then(function(token_db) {
-        const model1 = new model.Model(user_db, token_db);
-        server.serve(model1, args.options.port, args.options.sslDir + "/key.pem", args.options.sslDir + "/cert.pem");    
-    }).catch((e) => console.error(e));
+then(function(db) {
+    //mongo.connect(TOKEN_DB_URL).
+    //then(function(token_db) {
+    const model1 = new model.Model(db, args.options.authTimeout);
+    server.serve(model1, args.options.port, args.options.sslDir + "/key.pem", args.options.sslDir + "/cert.pem", args.options.authTimeout);    
+    //}).catch((e) => console.error(e));
     //db.close();
 }).
 catch((e) => console.error(e));
