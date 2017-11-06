@@ -57,7 +57,7 @@ function getUsers(app) {
             authToken = authorization.parse(request.headers.authorization).token;
         } else {
             var returnObject = { 
-                "status": "FIRST ERROR_UNAUTHORIZED",
+                "status": "ERROR_UNAUTHORIZED",
                 "info": "/users/" + request.params.id + " requires a bearer authorization header"
             }
             response.append('Location', requestUrl(request) + '/' + id);
@@ -87,7 +87,7 @@ function getUsers(app) {
                             });
                         } else {
                             var returnObject = { 
-                                "status": "SECOND ERROR_UNAUTHORIZED",
+                                "status": "ERROR_UNAUTHORIZED",
                                 "info": "/users/" + request.params.id + " requires a bearer authorization header"
                             }
                             response.append('Location', requestUrl(request) + '/' + id);
@@ -95,7 +95,7 @@ function getUsers(app) {
                         }
                     } else {
                         var returnObject = { 
-                            "status": "SECOND ERROR_UNAUTHORIZED",
+                            "status": "ERROR_UNAUTHORIZED",
                             "info": "/users/" + request.params.id + " requires a bearer authorization header"
                         }
                         response.append('Location', requestUrl(request) + '/' + id);
