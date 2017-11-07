@@ -59,20 +59,9 @@ function getUsers(app) {
             var parseHeader = authorization.parse(request.headers.authorization);
             authToken = parseHeader.token;
             scheme = parseHeader.scheme;
-            
         } else {
             flag = 1;
-            
         }
-
-        /*if(scheme !== 'Bearer') {
-            var returnObject = { 
-                "status": "ERROR_UNAUTHORIZED",
-                "info": "/users/" + request.params.id + " requires a bearer authorization header"
-            }
-            response.append('Location', requestUrl(request) + '/' + id);
-            response.status(UNAUTHORIZED).send(returnObject);    
-        }*/
         if (typeof id === 'undefined') {
             response.sendStatus(BAD_REQUEST);
         } else {
