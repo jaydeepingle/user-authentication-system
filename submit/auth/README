@@ -9,4 +9,5 @@ In this for hashing I have used md5 and for generating auth-token I have
 written my own program where I am generating a string of length 32 and 
 assigning timestamp with the same.
 
+Note: while running with curl provide option --insecure
 ------------------------------------------------------
