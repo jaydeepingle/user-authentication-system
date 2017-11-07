@@ -54,26 +54,25 @@ function getUsers(app) {
         const id = request.params.id;
         var authToken = "";
         var scheme = "";
+        var flag = 0;
         if(request.headers && request.headers.authorization) {
             var parseHeader = authorization.parse(request.headers.authorization);
             authToken = parseHeader.token;
             scheme = parseHeader.scheme;
-            if(scheme !== 'Bearer') {
-                var returnObject = { 
-                    "status": "ERROR_UNAUTHORIZED",
-                    "info": "/users/" + request.params.id + " requires a bearer authorization header"
-                }
-                response.append('Location', requestUrl(request) + '/' + id);
-                response.status(UNAUTHORIZED).send(returnObject);    
-            }
+            
         } else {
+            flag = 1;
+            
+        }
+
+        /*if(scheme !== 'Bearer') {
             var returnObject = { 
                 "status": "ERROR_UNAUTHORIZED",
                 "info": "/users/" + request.params.id + " requires a bearer authorization header"
             }
             response.append('Location', requestUrl(request) + '/' + id);
-            response.status(UNAUTHORIZED).send(returnObject);
-        }
+            response.status(UNAUTHORIZED).send(returnObject);    
+        }*/
         if (typeof id === 'undefined') {
             response.sendStatus(BAD_REQUEST);
         } else {
@@ -87,6 +86,14 @@ function getUsers(app) {
                     response.status(UNAUTHORIZED).send(returnObject);
                 } else {
                     if(authToken in results[0]['tokens']) {
+                        if(flag === 1) {
+                            var returnObject = { 
+                                "status": "ERROR_UNAUTHORIZED",
+                                "info": "/users/" + request.params.id + " requires a bearer authorization header"
+                            }
+                            response.append('Location', requestUrl(request) + '/' + id);
+                            response.status(UNAUTHORIZED).send(returnObject);
+                        }
                         if(new Date(results[0]['tokens'][authToken]) >= new Date()) {
                             request.app.locals.model.users.find(id).
                             then(function(records) {
@@ -152,9 +159,6 @@ function loginUser(app) {
                         if (results[0]["pw"] === md5(request.body["pw"])) {
                             var temp = {};
                             temp["id"] = id;
-                            console.log("Records\n", records); 
-                            console.log("Records[0]\n", records[0]); 
-                            console.log("Records[0][tokens]\n", records[0]["tokens"]);
                             temp["tokens"] = records[0]['tokens'];
                             var time = new Date();
                             time.setSeconds(time.getSeconds() + localAuthTimeout);
