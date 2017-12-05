@@ -34,6 +34,8 @@ function setupRoutes(app) {
   app.post('/login', loginHandler(app));
   app.get('/login', loginHandler(app));
   
+  app.get('/logout', logoutHandler(app));
+
   app.post('/register', registerHandler(app));
   app.get('/register', registerHandler(app));
   
@@ -42,31 +44,28 @@ function setupRoutes(app) {
 
 function logoutHandler(app) {
     return function(req, res) {
-        res.redirect('login');
+        res.clearCookie('email');
+        res.clearCookie('authToken');
+        res.redirect('/login');
     };
 }
 
 function accountHandler(app) {
-    //console.log("ACCOUNT HANDLER");
     return function(req, res) {
         var c = req.cookies;
-        console.log("COOKIES: ", c);
         if(c['email'] === 'undefined' || c['authToken'] === 'undefined') {
-            var errors = {};
-            errors['qSubmitError'] = 'Invalid username or password!';
-            res.send(doMustache(app, 'login', errors));          
-            //res.redirect('/login');
+            res.redirect('/login');
         } else {
             var errors = {};
             app.users.getUser(c).then(function (json) {
                 if(json.response && json.response.status === 401) {
-                    //errors['email'] = c['email'];
-                    //errors['qSubmitError'] = 'Invalid Username or Password!';
-                    res.send(doMustache(app, 'login', errors));          
+                    res.clearCookie('email');
+                    res.clearCookie('authToken');
+                    res.redirect('/login');
                 } else {
                     res.send(doMustache(app, 'account', json));
                 }
-            }); // if no get user then login page
+            });
         }
     };
 }
@@ -77,70 +76,41 @@ function rootRedirectHandler(app) {
     };
 }
 
-function deleteAllCookies(cookies) {
-    var cookies = cookies.split(";");
-
-    for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i];
-        var eqPos = cookie.indexOf("=");
-        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        cookies = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
-}
-
-function clearCookies() {
-    res.clearCookie('email', {path: '/'});
-    res.clearCookie('authToken', {path: '/'});
-}
-
 function loginHandler(app) {
     return function(req, res) {
         const isDisplay = (typeof req.body.submit === 'undefined');
-        if(req.body.submit === 'logout') {
-            console.log("COOKIES");
-            
-            const p = clearCookies(res);
-            p.then(function (value) {
-                resres.redirect('/login');
-            });
-            // deleteAllCookies(req.cookies);
-
-            
-            //res.send(doMustache(app, 'login', {}));          
+        if (isDisplay) { 
+            res.send(doMustache(app, 'login', {}));
         } else {
-            if (isDisplay) { //simply render search page
-                res.send(doMustache(app, 'login', {}));
+            const q = req.body;
+            var flag = 0;
+            var errors = {};
+            if (typeof q['email'] === 'undefined' || q['email'].trim().length === 0) {
+                flag = 1;
+                errors['qEmailError'] = 'Please provide a value';
             } else {
-                const q = req.body;
-                var flag = 0;
-                var errors = {};
-                if (typeof q['email'] === 'undefined' || q['email'].trim().length === 0) {
-                    flag = 1;
-                    errors['qEmailError'] = 'Please provide a value';
-                } else {
-                    errors['email'] = q.email;
-                }
-                if (typeof q['password'] === 'undefined' || q['password'].trim().length === 0) {
-                    flag = 1;
-                    errors['qPasswordError'] = 'Please provide a value';
-                } 
-                if(flag !== 1) {
-                    app.users.loginUser(q).then(function (json) {
-                        //console.log("LOGIN USER VALIDATIONS SUCCEED");
-                        if(json.response && json.response.status && json.response.status === 401) {
-                            errors = {};
-                            errors['email'] = q.email;
-                            errors['qSubmitError'] = 'Invalid Username or Password';
-                            res.send(doMustache(app, 'login', errors));  
-                        } else {
-                            res.cookie('authToken', json.authToken);
-                            res.cookie('email', q.email);
-                            res.redirect('/account');
-                        }
-                    });
-                } else {
-                    res.send(doMustache(app, 'login', errors));  
-                }
+                errors['email'] = q.email;
+            }
+            if (typeof q['password'] === 'undefined' || q['password'].trim().length === 0) {
+                flag = 1;
+                errors['qPasswordError'] = 'Please provide a value';
+            } 
+            if(flag !== 1) {
+                app.users.loginUser(q).then(function (json) {
+                    //console.log("LOGIN USER VALIDATIONS SUCCEED");
+                    if(json.response && json.response.status && json.response.status === 401) {
+                        errors = {};
+                        errors['email'] = q.email;
+                        errors['qSubmitError'] = 'Invalid Username or Password';
+                        res.send(doMustache(app, 'login', errors));  
+                    } else {
+                        res.cookie('authToken', json.authToken);
+                        res.cookie('email', q.email);
+                        res.redirect('/account');
+                    }
+                });
+            } else {
+                res.send(doMustache(app, 'login', errors));  
             }
         }
     }
@@ -152,20 +122,15 @@ function registerHandler(app) {
     return function(req, res) {
         const isDisplay = (typeof req.body.submit === 'undefined');
         if (isDisplay) { 
-            // console.log("isDisplay");
             res.send(doMustache(app, 'register', {}));
         } else {
-            // console.log("ELSE");
             const q = req.body;
             var errors = {};
             var flag = 0;
-            //validations for each
             if (typeof q.firstname === 'undefined' || q['firstname'].trim().length === 0) {
-                // console.log("FIRSTNAME 1");
                 flag = 1;
                 errors['qFirstNameError'] = 'Please provide a value';
             } else if(!(/^[a-zA-Z ]+$/.test(q.firstname))) {
-                // console.log("FIRSTNAME 2");
                 flag = 1;
                 errors['qFirstNameError'] ='Please provide a valid value';
             } else {
@@ -173,11 +138,9 @@ function registerHandler(app) {
             }
 
             if (typeof q.lastname === 'undefined' || q['lastname'].trim().length === 0) {
-                // console.log("LASTNAME 1");
                 flag = 1;
                 errors['qLastNameError'] = 'Please provide a value';
             } else if(!(/^[a-zA-Z ]+$/.test(q.lastname))) {
-                // console.log("LASTNAME 2");
                 flag = 1;
                 errors['qLastNameError'] = 'Please provide a valid value';
             } else {
@@ -185,11 +148,9 @@ function registerHandler(app) {
             }
 
             if (typeof q.email === 'undefined' || q['email'].trim().length === 0) {
-                // console.log("EMAIL 1");
                 flag = 1;
                 errors['qEmailError']= 'Please provide a value';
             } else if(!(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(q.email))) {
-                // console.log("EMAIL 2");
                 flag = 1;
                 errors['qEmailError']= 'Please provide a valid value';
             } else {
@@ -197,32 +158,25 @@ function registerHandler(app) {
             }
 
             if (typeof q.password === 'undefined' || q['password'].trim().length === 0) {
-                // console.log("PASSWORD 1");
                 flag = 1;
                 errors['qPasswordError'] = 'Please provide a value';
             } else if(!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/.test(q.password))) {
-                // console.log("PASSWORD 2");
                 flag = 1;
                 errors['qPasswordError'] = 'Please provide a strong value';
             }
 
             if (typeof q.confirmPassword === 'undefined' || q['confirmPassword'].trim().length === 0) {
-                // console.log("CONFIRM PASSWORD 1");
                 flag = 1;
                 errors['qConfirmPasswordError'] = 'Please provide a value';
             } else if(q.password !== q.confirmPassword) {
-                // console.log("CONFIRM PASSWORD 2");
                 flag = 1;
                 errors['qConfirmPasswordError'] = 'Password Mismatch';
             }
             
             if(flag !== 1) {
-                // console.log("FLAG SUCCESS");
                 app.users.registerUser(q).then(function(json) {
-                    //console.log("User Created", json);
 
                     if(json.response && json.response.status === 303) {
-                        //append error somewhere
                         errors['qSubmitError'] = 'User already exists!';
                         res.send(doMustache(app, 'register', errors));        
                     } else {

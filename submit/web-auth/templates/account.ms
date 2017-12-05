@@ -7,7 +7,7 @@
    <body>
       <h1>Account</h1>
       <p class="error">{{msg}}</p>
-      <form method="GET" action="/login">
+      <form method="GET" action="/logout">
          <label>
          <span class="label">Hello {{firstname}} {{lastname}}</span>
          </label>

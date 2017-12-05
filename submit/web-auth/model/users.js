@@ -9,6 +9,8 @@ const instance = axios.create({
 
 const USERS = 'users';
 
+function Users () {}
+
 Users.prototype.registerUser = function(data) {
     var tempororyPassword = data['password'];
     var tempororyEmail = data['email'];
