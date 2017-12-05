@@ -1,0 +1,12 @@
+Name    : Jaydeep Digambar Ingle
+BNumber : B00671052
+Email ID: jingle1@binghamton.edu
+
+Status  : Complete
+
+----------------------------------------------------------------------------------------
+
+- getUser, loginUser and registerUser functions under users.js deal with the server
+- The handlers have been written in index.js
+
+----------------------------------------------------------------------------------------
