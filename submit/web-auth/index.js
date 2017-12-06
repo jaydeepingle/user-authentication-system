@@ -42,10 +42,11 @@ function setupRoutes(app) {
   app.get('/account', accountHandler(app));
 }
 
+
 function logoutHandler(app) {
     return function(req, res) {
-        res.clearCookie('email');
-        res.clearCookie('authToken');
+        res.clearCookie('email', {path: '/'});
+        res.clearCookie('authToken', {path: '/'});
         res.redirect('/login');
     };
 }
@@ -53,14 +54,14 @@ function logoutHandler(app) {
 function accountHandler(app) {
     return function(req, res) {
         var c = req.cookies;
-        if(c['email'] === 'undefined' || c['authToken'] === 'undefined') {
+        if(c['email'] === undefined || c['authToken'] === undefined || c['email'] === '' || c['authToken'] === '') {
             res.redirect('/login');
         } else {
             var errors = {};
             app.users.getUser(c).then(function (json) {
                 if(json.response && json.response.status === 401) {
-                    res.clearCookie('email');
-                    res.clearCookie('authToken');
+                    res.clearCookie('email', {path: '/'});
+                    res.clearCookie('authToken', {path: '/'});
                     res.redirect('/login');
                 } else {
                     res.send(doMustache(app, 'account', json));
